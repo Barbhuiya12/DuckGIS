@@ -11,9 +11,9 @@
 <p align="center">
   <a href="https://qgis.org"><img src="https://img.shields.io/badge/QGIS-3.22+-589632.svg?logo=qgis&logoColor=white" alt="QGIS 3.22+"></a>
   <a href="https://duckdb.org"><img src="https://img.shields.io/badge/DuckDB-Spatial-FFF000.svg?logo=duckdb&logoColor=black" alt="DuckDB Spatial"></a>
-  <a href="https://github.com/siddikbarbhuiya/DuckGIS/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-GPL--2.0-blue.svg" alt="License"></a>
+  <a href="https://github.com/Barbhuiya12/DuckGIS/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-GPL--2.0-blue.svg" alt="License"></a>
   <a href="https://python.org"><img src="https://img.shields.io/badge/Python-3.9+-3776AB.svg?logo=python&logoColor=white" alt="Python"></a>
-  <a href="https://github.com/siddikbarbhuiya/DuckGIS/stargazers"><img src="https://img.shields.io/github/stars/siddikbarbhuiya/DuckGIS?style=social" alt="GitHub Stars"></a>
+  <a href="https://github.com/Barbhuiya12/DuckGIS/stargazers"><img src="https://img.shields.io/github/stars/Barbhuiya12/DuckGIS?style=social" alt="GitHub Stars"></a>
 </p>
 
 ---
@@ -62,7 +62,7 @@ LIMIT 5000;
 ## 🚀 Quickstart & Installation
 
 ### Option 1: Install via ZIP (Recommended)
-1. Download the latest `DuckGIS.zip` from the [Releases](https://github.com/siddikbarbhuiya/DuckGIS/releases) page.
+1. Download the latest `DuckGIS.zip` from the [Releases](https://github.com/Barbhuiya12/DuckGIS/releases) page.
 2. In QGIS, navigate to **Plugins** -> **Manage and Install Plugins...** -> **Install from ZIP**.
 3. Select `DuckGIS.zip` and click **Install Plugin**.
 4. Click the **DuckGIS** icon in your toolbar or open via **Database** -> **DuckGIS Studio**.
@@ -72,19 +72,19 @@ LIMIT 5000;
 **macOS:**
 ```bash
 cd ~/Library/Application\ Support/QGIS/QGIS3/profiles/default/python/plugins/
-git clone https://github.com/siddikbarbhuiya/DuckGIS.git
+git clone https://github.com/Barbhuiya12/DuckGIS.git
 ```
 
 **Linux:**
 ```bash
 cd ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins/
-git clone https://github.com/siddikbarbhuiya/DuckGIS.git
+git clone https://github.com/Barbhuiya12/DuckGIS.git
 ```
 
 **Windows (PowerShell):**
 ```powershell
 cd "$env:APPDATA\QGIS\QGIS3\profiles\default\python\plugins\"
-git clone https://github.com/siddikbarbhuiya/DuckGIS.git
+git clone https://github.com/Barbhuiya12/DuckGIS.git
 ```
 
 ---
@@ -139,7 +139,8 @@ Contributions, suggestions, and PRs are warmly welcome!
 - [ ] Direct export to Cloud-Optimized GeoTIFF (COG)
 - [ ] Auto-completion for DuckDB spatial SQL functions
 
-Please open an [Issue](https://github.com/siddikbarbhuiya/DuckGIS/issues) to discuss feature requests or report bugs.
+Please open an [Issue](https://github.com/Barbhuiya12/DuckGIS/issues) to discuss feature requests or report bugs.
+
 
 ---
 
