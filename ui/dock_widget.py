@@ -9,7 +9,7 @@ import json
 from typing import Optional, Dict, Any
 
 try:
-    from PyQt5.QtWidgets import (
+    from qgis.PyQt.QtWidgets import (
         QDockWidget,
         QWidget,
         QVBoxLayout,
@@ -25,11 +25,14 @@ try:
         QFileDialog,
         QMessageBox,
         QToolBar,
-        QAction,
         QMenu,
     )
-    from PyQt5.QtCore import Qt, pyqtSignal, QSize
-    from PyQt5.QtGui import QIcon, QFont, QKeySequence
+    try:
+        from qgis.PyQt.QtWidgets import QAction
+    except ImportError:
+        from qgis.PyQt.QtGui import QAction
+    from qgis.PyQt.QtCore import Qt, pyqtSignal, QSize
+    from qgis.PyQt.QtGui import QIcon, QFont, QKeySequence
     from qgis.core import QgsProject, QgsCoordinateReferenceSystem
     QT_AVAILABLE = True
 except ImportError:
@@ -278,7 +281,8 @@ class DuckGISDockWidget(QDockWidget if QT_AVAILABLE else object):
         if self.engine and self.engine.is_ready:
             return True
         dialog = DependencyDialog(self)
-        if dialog.exec_() == DependencyDialog.Accepted:
+        exec_dialog = getattr(dialog, "exec", getattr(dialog, "exec_", None))
+        if exec_dialog and exec_dialog() == DependencyDialog.Accepted:
             self._init_engine()
             return self.engine is not None and self.engine.is_ready
         return False

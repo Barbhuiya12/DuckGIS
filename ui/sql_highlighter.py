@@ -5,8 +5,8 @@ Provides syntax highlighting for SQL and DuckDB Spatial functions in QPlainTextE
 """
 
 try:
-    from PyQt5.QtGui import QSyntaxHighlighter, QTextCharFormat, QColor, QFont
-    from PyQt5.QtCore import QRegularExpression
+    from qgis.PyQt.QtGui import QSyntaxHighlighter, QTextCharFormat, QColor, QFont
+    from qgis.PyQt.QtCore import QRegularExpression
     QT_AVAILABLE = True
 except ImportError:
     QT_AVAILABLE = False
@@ -97,6 +97,6 @@ if QT_AVAILABLE:
                     self.setFormat(match.capturedStart(), match.capturedLength(), char_format)
 else:
     class SQLHighlighter:
-        """Dummy fallback when PyQt5 is not installed."""
+        """Dummy fallback when Qt is not installed."""
         def __init__(self, *args, **kwargs):
             pass

@@ -18,7 +18,7 @@ try:
         QgsProject,
         QgsWkbTypes,
     )
-    from PyQt5.QtCore import QVariant, QDate, QDateTime
+    from qgis.PyQt.QtCore import QVariant, QDate, QDateTime
     QGIS_AVAILABLE = True
 except ImportError:
     # Standalone test / mock fallback

@@ -8,9 +8,12 @@ import os
 from typing import Optional
 
 try:
-    from PyQt5.QtWidgets import QAction
-    from PyQt5.QtGui import QIcon
-    from PyQt5.QtCore import Qt
+    from qgis.PyQt.QtCore import Qt
+    from qgis.PyQt.QtGui import QIcon
+    try:
+        from qgis.PyQt.QtWidgets import QAction
+    except ImportError:
+        from qgis.PyQt.QtGui import QAction
     from qgis.gui import QgisInterface
     QT_AVAILABLE = True
 except ImportError:

@@ -8,7 +8,7 @@ Complies with QGIS security guidelines (no subprocess / privilege escalation).
 import sys
 
 try:
-    from PyQt5.QtWidgets import (
+    from qgis.PyQt.QtWidgets import (
         QDialog,
         QVBoxLayout,
         QHBoxLayout,
@@ -18,7 +18,7 @@ try:
         QApplication,
         QMessageBox,
     )
-    from PyQt5.QtCore import Qt
+    from qgis.PyQt.QtCore import Qt
     QT_AVAILABLE = True
 except ImportError:
     QT_AVAILABLE = False
