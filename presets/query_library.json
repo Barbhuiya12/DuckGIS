@@ -1,0 +1,51 @@
+[
+  {
+    "id": "overture_buildings",
+    "title": "Overture Maps — Buildings in Current Map View",
+    "category": "Cloud GeoParquet",
+    "description": "Streams building footprints from the Overture Maps global open dataset filtered by your current QGIS canvas extent.",
+    "sql": "-- Query Overture Buildings filtered by current map extent\nSELECT \n    id,\n    names.primary AS name,\n    height,\n    num_floors,\n    ST_GeomFromWkb(geometry) AS geom\nFROM read_parquet('s3://overturemaps-us-west-2/release/2024-02-15-alpha.0/theme=buildings/type=building/*')\nWHERE \n    bbox.xmin <= {{BBOX_XMAX}} AND bbox.xmax >= {{BBOX_XMIN}}\n    AND bbox.ymin <= {{BBOX_YMAX}} AND bbox.ymax >= {{BBOX_YMIN}}\nLIMIT 5000;"
+  },
+  {
+    "id": "overture_places",
+    "title": "Overture Maps — Places & POIs in Current View",
+    "category": "Cloud GeoParquet",
+    "description": "Streams POIs, restaurants, and amenities from Overture Maps matching the current map bounding box.",
+    "sql": "-- Query Overture Places / POIs in current map extent\nSELECT \n    id,\n    names.primary AS name,\n    categories.main AS category,\n    confidence,\n    ST_GeomFromWkb(geometry) AS geom\nFROM read_parquet('s3://overturemaps-us-west-2/release/2024-02-15-alpha.0/theme=places/type=place/*')\nWHERE \n    bbox.xmin <= {{BBOX_XMAX}} AND bbox.xmax >= {{BBOX_XMIN}}\n    AND bbox.ymin <= {{BBOX_YMAX}} AND bbox.ymax >= {{BBOX_YMIN}}\nLIMIT 2500;"
+  },
+  {
+    "id": "remote_geoparquet",
+    "title": "Query Remote GeoParquet via HTTPS",
+    "category": "Cloud GeoParquet",
+    "description": "Query any public cloud GeoParquet dataset over HTTPS without downloading the full archive.",
+    "sql": "-- Query remote GeoParquet directly over HTTPS\nSELECT \n    * EXCLUDE (geometry),\n    ST_GeomFromWkb(geometry) AS geom\nFROM read_parquet('https://data.source.coop/fiboa/us-ca-yolo/yolo_2023.parquet')\nLIMIT 1000;"
+  },
+  {
+    "id": "csv_latlon",
+    "title": "Convert CSV Lat/Lon to Spatial Points",
+    "category": "Data Transformation",
+    "description": "Instant spatialization of tabular CSV data into QGIS geometry points using ST_Point.",
+    "sql": "-- Convert CSV latitude/longitude columns to spatial points\nSELECT \n    *,\n    ST_Point(longitude, latitude) AS geom\nFROM read_csv('path/to/data.csv', header=true)\nLIMIT 1000;"
+  },
+  {
+    "id": "spatial_aggregation",
+    "title": "Spatial Aggregation & Convex Hull",
+    "category": "Spatial Analysis",
+    "description": "Aggregate geometry clusters by category and compute convex hulls.",
+    "sql": "-- Aggregate features and calculate cluster envelopes\nSELECT \n    category,\n    COUNT(*) AS total_features,\n    ST_ConvexHull(ST_Union_Agg(geom)) AS geom\nFROM source_table\nGROUP BY category;"
+  },
+  {
+    "id": "synthetic_grid",
+    "title": "Generate Spatial Hexagonal / Circular Grid",
+    "category": "Geometry Generation",
+    "description": "Generate dynamic geometric grids using DuckDB range generator and ST_Buffer.",
+    "sql": "-- Create a procedural grid of polygon cells\nSELECT \n    i AS col_idx,\n    j AS row_idx,\n    ST_Buffer(ST_Point({{BBOX_XMIN}} + i * (({{BBOX_XMAX}} - {{BBOX_XMIN}}) / 10.0), \n                       {{BBOX_YMIN}} + j * (({{BBOX_YMAX}} - {{BBOX_YMIN}}) / 10.0)), \n              (({{BBOX_XMAX}} - {{BBOX_XMIN}}) / 25.0)) AS geom\nFROM range(0, 10) t1(i), range(0, 10) t2(j);"
+  },
+  {
+    "id": "inspect_metadata",
+    "title": "Inspect File Schema & Column Types",
+    "category": "Diagnostics",
+    "description": "Inspect column names, data types, and nullability for any Parquet, GeoPackage, or CSV file.",
+    "sql": "-- Inspect schema and columns of any file\nDESCRIBE SELECT * FROM read_parquet('https://data.source.coop/fiboa/us-ca-yolo/yolo_2023.parquet');"
+  }
+]
