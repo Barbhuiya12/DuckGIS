@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-DuckGIS - Dependency Installer Dialog
-Provides a 1-click installer for DuckDB inside the QGIS Python environment.
+DuckGIS - Dependency Guidance Dialog
+Provides clear instructions and 1-click clipboard command to install DuckDB.
+Complies with QGIS security guidelines (no subprocess / privilege escalation).
 """
 
 import sys
-import subprocess
-from typing import Optional
 
 try:
     from PyQt5.QtWidgets import (
@@ -15,132 +14,99 @@ try:
         QHBoxLayout,
         QLabel,
         QPushButton,
-        QTextEdit,
-        QProgressBar,
+        QLineEdit,
+        QApplication,
         QMessageBox,
     )
-    from PyQt5.QtCore import QThread, pyqtSignal, Qt
-    from PyQt5.QtGui import QIcon
+    from PyQt5.QtCore import Qt
     QT_AVAILABLE = True
 except ImportError:
     QT_AVAILABLE = False
 
 
 if QT_AVAILABLE:
-    class PipInstallThread(QThread):
-        """Worker thread to run pip install without freezing the UI."""
-        log_signal = pyqtSignal(str)
-        finished_signal = pyqtSignal(bool, str)
-
-        def __init__(self, package_name="duckdb"):
-            super().__init__()
-            self.package_name = package_name
-
-        def run(self):
-            cmd = [sys.executable, "-m", "pip", "install", "--upgrade", self.package_name]
-            self.log_signal.emit(f"Executing: {' '.join(cmd)}\n")
-            try:
-                process = subprocess.Popen(
-                    cmd,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                    text=True,
-                    bufsize=1,
-                    universal_newlines=True,
-                )
-                output_lines = []
-                for line in process.stdout:
-                    output_lines.append(line)
-                    self.log_signal.emit(line.strip())
-
-                process.wait()
-                if process.returncode == 0:
-                    self.finished_signal.emit(True, "Installation successful!")
-                else:
-                    self.finished_signal.emit(False, f"pip exited with code {process.returncode}")
-            except Exception as ex:
-                self.finished_signal.emit(False, str(ex))
-
-
     class DependencyDialog(QDialog):
-        """Dialog prompting the user to install DuckDB if missing."""
+        """Dialog guiding the user to install DuckDB safely without subprocess."""
 
         def __init__(self, parent=None):
             super().__init__(parent)
-            self.setWindowTitle("DuckGIS — Setup Dependencies")
-            self.setMinimumSize(500, 320)
-            self._installer_thread: Optional[PipInstallThread] = None
+            self.setWindowTitle("DuckGIS — Setup DuckDB Dependency")
+            self.setMinimumSize(480, 260)
 
             layout = QVBoxLayout(self)
+            layout.setSpacing(12)
 
             # Header
-            self.lbl_header = QLabel("<h3>DuckDB Package Required</h3>")
+            self.lbl_header = QLabel("<h3>DuckDB Python Package Required</h3>")
             layout.addWidget(self.lbl_header)
 
             self.lbl_desc = QLabel(
-                "DuckGIS requires the <b>duckdb</b> Python library to execute high-speed "
-                "spatial queries.<br>Click <b>Install DuckDB Now</b> to automatically configure "
-                "it for your QGIS Python environment."
+                "DuckGIS requires the <b>duckdb</b> Python library to execute ultra-fast spatial queries.<br>"
+                "Please run the following command in your terminal or QGIS Python Console:"
             )
             self.lbl_desc.setWordWrap(True)
             layout.addWidget(self.lbl_desc)
 
-            # Log / Output Box
-            self.txt_log = QTextEdit()
-            self.txt_log.setReadOnly(True)
-            self.txt_log.setPlaceholderText("Installation logs will appear here...")
-            layout.addWidget(self.txt_log)
+            # Command text box
+            self.txt_cmd = QLineEdit()
+            self.txt_cmd.setReadOnly(True)
+            install_cmd = f"{sys.executable} -m pip install --upgrade duckdb"
+            self.txt_cmd.setText(install_cmd)
+            self.txt_cmd.setStyleSheet("font-family: monospace; font-size: 11px; padding: 6px; background-color: #f5f5f5;")
+            layout.addWidget(self.txt_cmd)
 
-            # Progress Bar
-            self.progress_bar = QProgressBar()
-            self.progress_bar.setRange(0, 0)
-            self.progress_bar.setVisible(False)
-            layout.addWidget(self.progress_bar)
+            # Instructions
+            self.lbl_note = QLabel(
+                "<small style='color: #666;'>"
+                "<b>On Windows:</b> Run via OSGeo4W Shell.<br>"
+                "<b>On macOS / Linux:</b> Run in your terminal or execute in QGIS Python Console (Ctrl+Alt+P)."
+                "</small>"
+            )
+            self.lbl_note.setWordWrap(True)
+            layout.addWidget(self.lbl_note)
 
-            # Actions
+            # Buttons
             btn_layout = QHBoxLayout()
-            self.btn_install = QPushButton("Install DuckDB Now")
-            self.btn_install.setStyleSheet("background-color: #2e7d32; color: white; font-weight: bold; padding: 6px 16px;")
-            self.btn_install.clicked.connect(self.start_install)
-            btn_layout.addWidget(self.btn_install)
+            self.btn_copy = QPushButton("📋 Copy Command")
+            self.btn_copy.setStyleSheet("background-color: #2e7d32; color: white; font-weight: bold; padding: 6px 14px;")
+            self.btn_copy.clicked.connect(self._copy_command)
+            btn_layout.addWidget(self.btn_copy)
 
-            self.btn_close = QPushButton("Cancel")
+            self.btn_check = QPushButton("🔄 Check Again")
+            self.btn_check.clicked.connect(self._check_installed)
+            btn_layout.addWidget(self.btn_check)
+
+            self.btn_close = QPushButton("Close")
             self.btn_close.clicked.connect(self.reject)
             btn_layout.addWidget(self.btn_close)
 
             layout.addLayout(btn_layout)
 
-        def start_install(self):
-            """Launches the pip installer in the background."""
-            self.btn_install.setEnabled(False)
-            self.progress_bar.setVisible(True)
-            self.txt_log.clear()
+        def _copy_command(self):
+            """Copies the pip command to clipboard."""
+            clipboard = QApplication.clipboard()
+            clipboard.setText(self.txt_cmd.text())
+            QMessageBox.information(
+                self,
+                "Copied",
+                "Command copied to clipboard!\nRun it in your terminal, then click 'Check Again'."
+            )
 
-            self._installer_thread = PipInstallThread("duckdb")
-            self._installer_thread.log_signal.connect(self._on_log)
-            self._installer_thread.finished_signal.connect(self._on_finished)
-            self._installer_thread.start()
-
-        def _on_log(self, text: str):
-            self.txt_log.append(text)
-
-        def _on_finished(self, success: bool, message: str):
-            self.progress_bar.setVisible(False)
-            self.btn_install.setEnabled(True)
-            if success:
+        def _check_installed(self):
+            """Checks if duckdb is now importable."""
+            try:
+                import duckdb  # noqa: F401
                 QMessageBox.information(
                     self,
-                    "Installation Complete",
-                    "DuckDB was successfully installed! You can now use DuckGIS."
+                    "DuckDB Detected",
+                    "DuckDB was detected successfully! You can now use DuckGIS."
                 )
                 self.accept()
-            else:
-                QMessageBox.critical(
+            except ImportError:
+                QMessageBox.warning(
                     self,
-                    "Installation Failed",
-                    f"Failed to install DuckDB automatically:\n{message}\n\n"
-                    "You can also run manually in your terminal:\n"
-                    f"{sys.executable} -m pip install duckdb"
+                    "Not Detected Yet",
+                    "DuckDB could not be found yet.\nPlease ensure the command finished installing, then try again."
                 )
 else:
     class DependencyDialog:

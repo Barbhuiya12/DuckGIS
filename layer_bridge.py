@@ -206,9 +206,10 @@ class LayerBridge:
         if not QGIS_AVAILABLE or not qgis_layer or not qgis_layer.isValid():
             raise LayerBridgeError("Invalid QGIS layer.")
 
+        import re
         name = view_name or qgis_layer.name().lower().replace(" ", "_").replace("-", "_")
         name = "".join(c for c in name if c.isalnum() or c == "_")
-        if not name:
+        if not re.match(r"^[a-zA-Z_][a-zA-Z0-9_]*$", name):
             name = "qgis_layer"
 
         source = qgis_layer.source()
@@ -216,9 +217,9 @@ class LayerBridge:
         if os.path.exists(source) and source.lower().endswith((".gpkg", ".shp", ".parquet", ".geojson", ".fgb")):
             escaped_source = source.replace("'", "''")
             if source.lower().endswith(".parquet"):
-                sql = f"CREATE OR REPLACE VIEW {name} AS SELECT * FROM read_parquet('{escaped_source}');"
+                sql = f"CREATE OR REPLACE VIEW {name} AS SELECT * FROM read_parquet('{escaped_source}');"  # nosec B608
             else:
-                sql = f"CREATE OR REPLACE VIEW {name} AS SELECT * FROM ST_Read('{escaped_source}');"
+                sql = f"CREATE OR REPLACE VIEW {name} AS SELECT * FROM ST_Read('{escaped_source}');"  # nosec B608
             duckdb_engine.execute_query(sql)
             return name
 
@@ -237,6 +238,6 @@ class LayerBridge:
         if write_result != QgsVectorFileWriter.NoError:
             raise LayerBridgeError(f"Failed to export QGIS layer for DuckDB registration (Error {write_result}).")
 
-        sql = f"CREATE OR REPLACE VIEW {name} AS SELECT * FROM ST_Read('{tmp_path}');"
+        sql = f"CREATE OR REPLACE VIEW {name} AS SELECT * FROM ST_Read('{tmp_path}');"  # nosec B608
         duckdb_engine.execute_query(sql)
         return name

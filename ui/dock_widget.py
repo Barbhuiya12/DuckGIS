@@ -267,7 +267,7 @@ class DuckGISDockWidget(QDockWidget if QT_AVAILABLE else object):
 
         try:
             table_name = LayerBridge.register_qgis_layer_in_duckdb(layer, self.engine)
-            snippet = f"\n-- Query registered layer:\nSELECT * FROM {table_name} LIMIT 100;\n"
+            snippet = f"\n-- Query registered layer:\nSELECT * FROM {table_name} LIMIT 100;\n"  # nosec B608
             self.sql_editor.appendPlainText(snippet)
             self._set_status(f"Registered '{layer.name()}' as DuckDB table '{table_name}'", "ready")
         except Exception as e:

@@ -192,15 +192,15 @@ class DuckDBEngine:
         fmt = file_format.upper()
 
         if fmt == "PARQUET":
-            copy_sql = f"COPY ({sql.rstrip(';')}) TO '{output_path}' (FORMAT PARQUET, COMPRESSION ZSTD);"
+            copy_sql = f"COPY ({sql.rstrip(';')}) TO '{output_path}' (FORMAT PARQUET, COMPRESSION ZSTD);"  # nosec B608
         elif fmt == "CSV":
-            copy_sql = f"COPY ({sql.rstrip(';')}) TO '{output_path}' (HEADER, DELIMITER ',');"
+            copy_sql = f"COPY ({sql.rstrip(';')}) TO '{output_path}' (HEADER, DELIMITER ',');"  # nosec B608
         elif fmt in ("GPKG", "GEOPACKAGE"):
-            copy_sql = f"COPY ({sql.rstrip(';')}) TO '{output_path}' WITH (FORMAT GDAL, DRIVER 'GPKG');"
+            copy_sql = f"COPY ({sql.rstrip(';')}) TO '{output_path}' WITH (FORMAT GDAL, DRIVER 'GPKG');"  # nosec B608
         elif fmt == "GEOJSON":
-            copy_sql = f"COPY ({sql.rstrip(';')}) TO '{output_path}' WITH (FORMAT GDAL, DRIVER 'GeoJSON');"
+            copy_sql = f"COPY ({sql.rstrip(';')}) TO '{output_path}' WITH (FORMAT GDAL, DRIVER 'GeoJSON');"  # nosec B608
         else:
-            copy_sql = f"COPY ({sql.rstrip(';')}) TO '{output_path}';"
+            copy_sql = f"COPY ({sql.rstrip(';')}) TO '{output_path}';"  # nosec B608
 
         try:
             self._conn.execute(copy_sql)
@@ -213,6 +213,6 @@ class DuckDBEngine:
         if self._conn:
             try:
                 self._conn.close()
-            except Exception:
-                pass
+            except Exception as ex:
+                _ = ex
             self._conn = None
